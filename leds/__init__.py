@@ -44,3 +44,46 @@ class _LedBase:
 
     def done(self):
         return self._effect.done()
+
+
+class MultiLed:
+    def __init__(self, leds):
+        self.leds = leds
+        self._effect = asyncio.create_task(NoEffect().run(None))
+
+    def cancel_all(self):
+        for led in self.leds:
+            led.cancel()
+
+    @property
+    def color(self):
+        raise AttributeError()
+
+    @color.setter
+    def color(self, value):
+        for led in self.leds:
+            led.color = value
+
+    @property
+    def brightness(self):
+        raise AttributeError()
+
+    @brightness.setter
+    def brightness(self, value):
+        for led in self.leds:
+            led.brightness = value
+
+    def effect(self, effect=NoEffect()):
+        self._effect.cancel()
+        if isinstance(effect, tuple):
+            self._effect = asyncio.create_task(
+                asyncio.gather(*[e.run(self) for e in effect])
+            )
+        else:
+            self._effect = asyncio.create_task(effect.run(self))
+
+    def cancel(self):
+        self._effect.cancel()
+
+    def done(self):
+        return self._effect.done()
