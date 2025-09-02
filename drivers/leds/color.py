@@ -7,8 +7,10 @@ import micropython
 MAX = micropython.const(0xFF)
 
 
-class RGB(namedtuple("RGB", ["r", "g", "b"])):
+class RGB(bytearray):
     # internally represented with 3 8 bit integers
+    def __init__(self, r, g, b):
+        super().__init__((r, g, b))
 
     @classmethod
     def from_string(cls, val):
