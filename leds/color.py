@@ -1,30 +1,57 @@
 #!/usr/bin/env micropython
 from collections import namedtuple
 
+import micropython
+
+
+MAX = micropython.const(0xFF)
+
 
 class RGB(namedtuple("RGB", ["r", "g", "b"])):
+    # internally represented with 3 8 bit integers
+
     @classmethod
     def from_string(cls, val):
         v = val.lstrip("#")
-        return cls(*tuple(int(v[i : i + 2], 16) / 255 for i in (0, 2, 4)))
+        return cls(*tuple(int(v[i : i + 2], 16) for i in (0, 2, 4)))
+
+    @classmethod
+    def from_floats(cls, r, g, b):
+        return cls(int(r * MAX), int(g * MAX), int(b * MAX))
+
+    @classmethod
+    def from_888(cls, r, g, b):
+        return cls(int(r), int(g), int(b))
+
+    @classmethod
+    def from_565(cls, r, g, b):
+        return cls(
+            int((r * 255) // 0x1F),
+            int((g * 255) // 0x3F),
+            int((b * 255) // 0x1F),
+        )
 
     def __str__(self):
-        return "#%02X%02X%02X" % tuple(int(c * 255) for c in self)
+        return "#%02X%02X%02X" % tuple(c for c in self)
+
+    def as_float(self):
+        return tuple(float(c / MAX) for c in self)
 
     def hsv(self):
         return HSV.from_rgb(self)
 
 
-RGB.White = RGB(1, 1, 1)
+RGB.White = RGB(MAX, MAX, MAX)
 RGB.Black = RGB(0, 0, 0)
-RGB.Red = RGB(1, 0, 0)
-RGB.Green = RGB(0, 1, 0)
-RGB.Blue = RGB(0, 0, 1)
+RGB.Red = RGB(MAX, 0, 0)
+RGB.Green = RGB(0, MAX, 0)
+RGB.Blue = RGB(0, 0, MAX)
 
 
 class HSV(namedtuple("HSV", ["h", "s", "v"])):
     @classmethod
-    def from_rgb(cls, rgb):
+    def from_rgb(cls, _rgb):
+        rgb = _rgb.as_float()
         x_max = max(rgb)
         x_min = min(rgb)
         C = x_max - x_min
@@ -62,4 +89,4 @@ class HSV(namedtuple("HSV", ["h", "s", "v"])):
             r, b = (C, X)
 
         m = self.v - C
-        return RGB(r + m, g + m, b + m)
+        return RGB.from_floats(r + m, g + m, b + m)

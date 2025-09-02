@@ -7,20 +7,18 @@ from . import _LedBase
 
 
 class _Led(_LedBase):
-    @_LedBase.color.setter
-    def color(self, value):
+    def set_color(self, value):
         self._c = value
         self._m._recalc(self._i, self._b, self._c)
+        self._m._event.set()  # trigger change !
 
-    @_LedBase.brightness.setter
-    def brightness(self, value):
+    def _set_brightness(self, value):
         self._b = value
         self._m._recalc(self._i, self._b, self._c)
+        self._m._event.set()  # trigger change !
 
 
 class NeoPixel:
-    MAX_BRIGHTNESS = 255
-
     def __init__(self, strip, pause=20):
         self.strip = strip
         self.pause = pause
@@ -31,10 +29,14 @@ class NeoPixel:
         self._event = asyncio.Event()
         self._task = None
 
-    @micropython.native
-    def _recalc(self, n, b, c):
-        self.strip[n] = tuple(int(led * b * self.MAX_BRIGHTNESS) for led in c)
-        self._event.set()  # trigger change !
+    @micropython.viper
+    def _recalc(self, n: uint, b: uint, c: ptr8):
+        buf = ptr8(self.strip.buf)
+        order = ptr8(self.strip.ORDER)
+        offset = uint(uint(self.strip.bpp) * n)
+        buf[offset + order[0]] = ((c[0] * b) + 127) // 0xFF
+        buf[offset + order[1]] = ((c[1] * b) + 127) // 0xFF
+        buf[offset + order[2]] = ((c[2] * b) + 127) // 0xFF
 
     def start(self):
         if not self._task:

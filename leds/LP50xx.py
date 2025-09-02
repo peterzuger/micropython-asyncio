@@ -8,25 +8,21 @@ from . import _LedBase
 
 
 class _Led(_LedBase):
-    @_LedBase.color.setter
-    def color(self, value):
+    def set_color(self, value):
         self._c = value
         self._m._write_color(self._i, value)
 
-    @_LedBase.brightness.setter
-    def brightness(self, value):
+    def _set_brightness(self, value):
         self._b = value
         self._m._write_brightness(self._i, value)
 
 
 class _LedBank(_LedBase):
-    @_LedBase.color.setter
-    def color(self, value):
+    def set_color(self, value):
         self._c = value
         self._m._write_bank_color(value)
 
-    @_LedBase.brightness.setter
-    def brightness(self, value):
+    def _set_brightness(self, value):
         self._b = value
         self._m._write_bank_brightness(value)
 
@@ -89,18 +85,18 @@ class LP5024:
     # individual Led control
     @micropython.native
     def _write_color(self, led, c):
-        r1 = self.OUT0_COLOR + 3 * led
-        val = struct.pack("BBB", int(c.r * 255), int(c.g * 255), int(c.b * 255))
+        r1 = self.OUT0_COLOR + (3 * led)
+        val = struct.pack("BBB", c.r, c.g, c.b)
         self._iface.writeto_mem(self.addr, r1, val)
 
     @micropython.native
     def _write_brightness(self, led, b):
-        self._write(self.LED0_BRIGHTNESS + led, int(b * 255))
+        self._write(self.LED0_BRIGHTNESS + led, b)
 
     # BANK control
     @micropython.native
     def _write_bank_color(self, c):
-        val = struct.pack("BBB", int(c.r * 255), int(c.g * 255), int(c.b * 255))
+        val = struct.pack("BBB", c.r, c.g, c.b)
         self._iface.writeto_mem(self.addr, self.BANK_A_COLOR, val)
 
     @micropython.native

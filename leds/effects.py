@@ -14,8 +14,8 @@ class Set:
         self.brightness = brightness
 
     async def run(self, led):
-        led.color = self.color
-        led.brightness = self.brightness
+        led.set_color(self.color)
+        led.set_brightness(self.brightness)
 
 
 class Color:
@@ -23,7 +23,7 @@ class Color:
         self.color = color
 
     async def run(self, led):
-        led.color = self.color
+        led.set_color(self.color)
 
 
 class Brightness:
@@ -31,35 +31,35 @@ class Brightness:
         self.brightness = brightness
 
     async def run(self, led):
-        led.brightness = self.brightness
+        led.set_brightness(self.brightness)
 
 
 class On:
-    def __init__(self, time=0.5, steps=16):
-        self.delay = int((time * 1000) / steps)
+    def __init__(self, time_ms=500, steps=16):
+        self.delay = time_ms // steps
         self.steps = steps
 
     async def run(self, led):
-        sb = led.brightness
+        sb = led.get_brightness()
         bs = (1 - sb) / self.steps
         for step in range(self.steps):
-            led.brighness = sb + (bs * step)
+            led.set_brightness(sb + (bs * step))
             await asyncio.sleep_ms(self.delay)
-        led.brighness = 1  # because of FP errors
+        led.set_brightness(1)  # because of FP errors
 
 
 class Off:
-    def __init__(self, time=0.5, steps=16):
-        self.delay = int((time * 1000) / steps)
+    def __init__(self, time_ms=500, steps=16):
+        self.delay = time_ms // steps
         self.steps = steps
 
     async def run(self, led):
-        sb = led.brightness
+        sb = led.get_brightness()
         bs = sb / self.steps
         for step in range(self.steps):
-            led.brighness = sb - (bs * step)
+            led.set_brightness(sb - (bs * step))
             await asyncio.sleep_ms(self.delay)
-        led.brighness = 0  # because of FP errors
+        led.set_brightness(0)  # because of FP errors
 
 
 class Sine:
@@ -70,7 +70,7 @@ class Sine:
         try:
             while True:
                 for x in range(0, 180, self.step):
-                    led.brightness = math.sin(math.radians(x))
+                    led.set_brightness(math.sin(math.radians(x)))
                     await asyncio.sleep_ms(20)
         finally:
-            led.brightness = 1
+            led.set_brightness(1)
