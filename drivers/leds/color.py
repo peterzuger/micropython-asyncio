@@ -12,6 +12,30 @@ class RGB(bytearray):
     def __init__(self, r, g, b):
         super().__init__((r, g, b))
 
+    @property
+    def r(self):
+        return self[0]
+
+    @r.setter
+    def r(self, value):
+        self[0] = value
+
+    @property
+    def g(self):
+        return self[1]
+
+    @g.setter
+    def g(self, value):
+        self[1] = value
+
+    @property
+    def b(self):
+        return self[2]
+
+    @b.setter
+    def b(self, value):
+        self[2] = value
+
     @classmethod
     def from_string(cls, val):
         v = val.lstrip("#")
@@ -35,6 +59,9 @@ class RGB(bytearray):
 
     def __str__(self):
         return "#%02X%02X%02X" % tuple(c for c in self)
+
+    def __repr__(self):
+        return f"RGB(r={self[0]}, g={self[1]}, b={self[2]})"
 
     def as_float(self):
         return tuple(float(c / MAX) for c in self)
