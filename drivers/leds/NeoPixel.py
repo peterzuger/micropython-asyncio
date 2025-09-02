@@ -23,6 +23,7 @@ class NeoPixel:
         self.strip = strip
         self.pause = pause
         self.n = strip.n
+        self.ORDER = bytearray(strip.ORDER)
 
         self.leds = [_Led(self, i) for i in range(self.n)]
 
@@ -32,7 +33,7 @@ class NeoPixel:
     @micropython.viper
     def _recalc(self, n: uint, b: uint, c: ptr8):
         buf = ptr8(self.strip.buf)
-        order = ptr8(self.strip.ORDER)
+        order = ptr8(self.ORDER)
         offset = uint(uint(self.strip.bpp) * n)
         buf[offset + order[0]] = ((c[0] * b) + 127) // 0xFF
         buf[offset + order[1]] = ((c[1] * b) + 127) // 0xFF
