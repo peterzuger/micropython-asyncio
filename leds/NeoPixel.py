@@ -21,8 +21,9 @@ class _Led(_LedBase):
 class NeoPixel:
     MAX_BRIGHTNESS = 255
 
-    def __init__(self, strip):
+    def __init__(self, strip, pause=20):
         self.strip = strip
+        self.pause = pause
         self.n = strip.n
 
         self.leds = [_Led(self, i) for i in range(self.n)]
@@ -49,3 +50,4 @@ class NeoPixel:
             await self._event.wait()
             self._event.clear()
             self.strip.write()
+            await asyncio.sleep_ms(self.pause)
