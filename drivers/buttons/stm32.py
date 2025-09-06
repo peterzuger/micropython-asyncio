@@ -61,21 +61,12 @@ class Button(Pin):
 
 _BITS = array.array("H", (1 << i for i in range(16)))
 
+
 # count trailing zeroes
-try:
-
-    @micropython.asm_thumb
-    def ctz(r0) -> uint:
-        rbit(r0, r0)
-        clz(r0, r0)
-
-except NameError:
-
-    def ctz(r0):
-        for i, b in enumerate(_BITS):
-            if r0 & b:
-                return i
-        return 0
+@micropython.asm_thumb
+def ctz(r0) -> uint:
+    rbit(r0, r0)
+    clz(r0, r0)
 
 
 class Buttons:
