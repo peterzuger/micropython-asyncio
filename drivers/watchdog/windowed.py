@@ -1,10 +1,10 @@
 #!/usr/bin/env micropython
 import time
 
-from .task import Task
+from .task import TaskWatchdog
 
 
-class WindowedTask(Task):
+class WindowedTaskWatchdog(TaskWatchdog):
     def __init__(self, window_start, window_end):
         super().__init__(window_end)
 

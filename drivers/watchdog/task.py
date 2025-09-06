@@ -3,7 +3,7 @@ import asyncio
 import time
 
 
-class Task:
+class TaskWatchdog:
     def __init__(self, timeout):
         self.timeout = timeout
 
